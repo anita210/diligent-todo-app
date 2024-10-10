@@ -1,5 +1,5 @@
-const fs = require('fs');
-const express = require('express');
+const fs = require("fs");
+const express = require("express");
 
 const port = 3000;
 
@@ -7,51 +7,56 @@ const app = express();
 
 app.use(express.json());
 
-app.get('/todos', (req, res) => {
-    const todos = JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+app.get("/todos", (req, res) => {
+  const todos = JSON.parse(fs.readFileSync("data.json", "utf-8"));
 
-    res.json(todos);
-})
+  res.json(todos);
+});
 
-app.post('/add', (req, res) => {
-    const newTodo = req.body; 
+app.post("/add", (req, res) => {
+  const newTodo = req.body;
 
-    const todos = getTodos();
+  const todos = getTodos();
 
-    todos.push(newTodo);
+  todos.push(newTodo);
 
-    saveTodos(todos);
+  saveTodos(todos);
 
-    res.status(201).json(newTodo);
+  res.status(201).json(newTodo);
+});
 
-})
+app.put("/todos/:id", (req, res) => {
+  const { id } = req.params;
+  const updatedTodo = req.body;
 
-app.put('/todos/:id', (req, res) => {
-    const { id } = req.params;
-    const updatedTodo = req.body;
+  const todos = getTodos();
+  const todoIndex = todos.findIndex(
+    (todo) => parseInt(todo.id) === parseInt(id)
+  );
 
-    const todos = getTodos();
-    const todoIndex = todos.findIndex(todo => parseInt(todo.id) === parseInt(id));
+  if (todoIndex !== -1) {
+    todos[todoIndex] = updatedTodo;
+  }
+  saveTodos(todos);
+  res.json(todos[todoIndex]);
+});
 
-    if(todoIndex !== -1){
-        
-    }
+app.delete("/todos/:id", (req, res) => {
+  const { id } = req.params;
+  const todos = getTodos();
+  todos = todos.filter((todo) => todo.id !== id);
+  saveTodos(todos);
+  res.send(204);
+});
 
+app.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
+});
 
-})
-
-app.listen(port, () => { console.log(`Server listening on port ${port}`) });
-
-function getTodos(){
-    return JSON.parse(fs.readFileSync('data.json', 'utf-8'));
+function getTodos() {
+  return JSON.parse(fs.readFileSync("data.json", "utf-8"));
 }
 
-function saveTodos(todos){
-    fs.writeFileSync('data.json', JSON.stringify(todos));
+function saveTodos(todos) {
+  fs.writeFileSync("data.json", JSON.stringify(todos));
 }
-
-
-
-
-
-
