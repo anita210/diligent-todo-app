@@ -7,9 +7,13 @@ const app = express();
 
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`Method: ${req.method}, Path: ${req.path}`);
+  next();
+});
+
 app.get("/todos", (req, res) => {
   const todos = JSON.parse(fs.readFileSync("data.json", "utf-8"));
-
   res.json(todos);
 });
 
